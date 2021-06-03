@@ -114,12 +114,12 @@ contract Vow {
 
     // Push to debt-queue
     function fess(uint tab) external auth {
-        sin[now] = add(sin[now], tab);
+        sin[block.timestamp] = add(sin[block.timestamp], tab);
         Sin = add(Sin, tab);
     }
     // Pop from debt-queue
     function flog(uint era) external {
-        require(add(era, wait) <= now, "Vow/wait-not-finished");
+        require(add(era, wait) <= block.timestamp, "Vow/wait-not-finished");
         Sin = sub(Sin, sin[era]);
         sin[era] = 0;
     }

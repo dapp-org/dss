@@ -112,22 +112,22 @@ contract Flapper {
         bids[id].bid = bid;
         bids[id].lot = lot;
         bids[id].guy = msg.sender;  // configurable??
-        bids[id].end = add(uint48(now), tau);
+        bids[id].end = add(uint48(block.timestamp), tau);
 
         vat.move(msg.sender, address(this), lot);
 
         emit Kick(id, lot, bid);
     }
     function tick(uint id) external {
-        require(bids[id].end < now, "Flapper/not-finished");
+        require(bids[id].end < block.timestamp, "Flapper/not-finished");
         require(bids[id].tic == 0, "Flapper/bid-already-placed");
-        bids[id].end = add(uint48(now), tau);
+        bids[id].end = add(uint48(block.timestamp), tau);
     }
     function tend(uint id, uint lot, uint bid) external {
         require(live == 1, "Flapper/not-live");
         require(bids[id].guy != address(0), "Flapper/guy-not-set");
-        require(bids[id].tic > now || bids[id].tic == 0, "Flapper/already-finished-tic");
-        require(bids[id].end > now, "Flapper/already-finished-end");
+        require(bids[id].tic > block.timestamp || bids[id].tic == 0, "Flapper/already-finished-tic");
+        require(bids[id].end > block.timestamp, "Flapper/already-finished-end");
 
         require(lot == bids[id].lot, "Flapper/lot-not-matching");
         require(bid >  bids[id].bid, "Flapper/bid-not-higher");
@@ -140,11 +140,11 @@ contract Flapper {
         gem.move(msg.sender, address(this), bid - bids[id].bid);
 
         bids[id].bid = bid;
-        bids[id].tic = add(uint48(now), ttl);
+        bids[id].tic = add(uint48(block.timestamp), ttl);
     }
     function deal(uint id) external {
         require(live == 1, "Flapper/not-live");
-        require(bids[id].tic != 0 && (bids[id].tic < now || bids[id].end < now), "Flapper/not-finished");
+        require(bids[id].tic != 0 && (bids[id].tic < block.timestamp || bids[id].end < block.timestamp), "Flapper/not-finished");
         vat.move(address(this), bids[id].guy, bids[id].lot);
         gem.burn(address(this), bids[id].bid);
         delete bids[id];
